@@ -1,0 +1,40 @@
+mp:
+  messaging:
+    incoming:
+      activate-account:
+        connector: quarkus-jetstream
+        stream: test
+        consumer: activate-account-consumer
+
+quarkus:
+  log:
+    level: INFO
+  hibernate-orm:
+    log:
+      sql: true
+    dialect: org.hibernate.dialect.PostgreSQLDialect
+    database:
+      scripts:
+        generation: none
+  datasource:
+    db-kind: postgresql
+    username: ${db-username:postgres}
+    password: ${db-password:123456}
+    reactive:
+      url: ${db-reactive-url:postgresql://localhost:5432/emite}
+      max-size: 20
+
+  messaging:
+    nats:
+      connection:
+        servers: nats://localhost:4222
+        username: guest
+        password: guest
+        ssl-enabled: false
+      auto-configure: true
+      streams:
+        test:
+          pull-consumers:
+            activate-account-consumer:
+              consumer-configuration:
+                filter-subjects: activate-account
