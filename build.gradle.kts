@@ -8,15 +8,15 @@ plugins {
 
 spotless {
     java {
-        googleJavaFormat()
+        eclipse().configFile("${rootDir}/.config/codestyle/eclipse-java-google-style.xml")
         targetExclude("build/**", "**/quarkus-generated-sources/**")
     }
 }
 
 checkstyle {
     toolVersion = "10.20.0"
-    configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
-    configDirectory = file("${rootDir}/config/checkstyle")
+    configFile = file("${rootDir}/.config/checkstyle/checkstyle.xml")
+    configDirectory = file("${rootDir}/.config/checkstyle")
     isIgnoreFailures = false
 }
 

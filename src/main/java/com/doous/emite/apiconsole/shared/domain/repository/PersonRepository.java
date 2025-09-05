@@ -15,7 +15,8 @@ import org.hibernate.reactive.mutiny.Mutiny;
 @ApplicationScoped
 public class PersonRepository implements PanacheRepository<PersonEntity> {
 
-  @Inject Mutiny.SessionFactory sessionFactory;
+  @Inject
+  Mutiny.SessionFactory sessionFactory;
 
   /**
    * Obtiene una entidad ConfigLegalPersonEntity por el CIU de la persona.
@@ -24,15 +25,11 @@ public class PersonRepository implements PanacheRepository<PersonEntity> {
    * @return Uni con la entidad ConfigLegalPersonEntity encontrada o null si no existe.
    */
   public Uni<ConfigLegalPersonEntity> getByCiu(String ciu) {
-    return find(
-            """
-                SELECT DISTINCT c FROM ConfigLegalPersonEntity c
-                JOIN FETCH c.person p
-                WHERE p.ciu = ?1
-                """,
-            ciu)
-        .project(ConfigLegalPersonEntity.class)
-        .firstResult();
+    return find("""
+        SELECT DISTINCT c FROM ConfigLegalPersonEntity c
+        JOIN FETCH c.person p
+        WHERE p.ciu = ?1
+        """, ciu).project(ConfigLegalPersonEntity.class).firstResult();
   }
 
   /**
@@ -46,7 +43,6 @@ public class PersonRepository implements PanacheRepository<PersonEntity> {
     return sessionFactory
         .withTransaction(
             session -> session.createNativeQuery(sql).setParameter(1, id).executeUpdate())
-        .onItem()
-        .transform(i -> null);
+        .onItem().transform(i -> null);
   }
 }

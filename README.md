@@ -4,6 +4,26 @@ This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
 
+## Config formatting style
+
+Install plugin on Intellij IDEA, go to settings on macOS: cmd + ,
+
+> Settings > Plugins > Marketplace > Search for "Adapter for Eclipse Code Formatter" > Install
+
+Enable and configure the plugin:
+
+> Settings > Adapter for Eclipse Code Formatter > Check "Use eclipse code formatter" > Check "Eclipse workspace/project folder or config file" > select the file located on "{your-path-project}/.config/codestyle" and select the `eclipse-java-google-style.xml` file located in the root of the project.
+
+## Config pre-commit hook
+
+To configure the pre-commit hook, run the following command:
+
+```shell script
+brew install lefthook
+
+lefthook install
+```
+
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:

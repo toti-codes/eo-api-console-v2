@@ -1,6 +1,5 @@
 package com.doous.emite.apiconsole.nats.consumer;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -20,7 +19,8 @@ import org.mockito.MockitoAnnotations;
 
 class ActivateAccountConsumerTest {
 
-  @Mock private PersonRepository personRepository;
+  @Mock
+  private PersonRepository personRepository;
 
   private ActivateAccountConsumer consumer;
 
@@ -48,10 +48,9 @@ class ActivateAccountConsumerTest {
     when(personRepository.activateAccount(anyLong())).thenReturn(Uni.createFrom().voidItem());
 
     // Act
-    consumer.consume(dataBytes);
+    consumer.consume(dataBytes).await().indefinitely();
 
     // Assert
-    assertFalse(configLegalPersonEntity.suspend);
     verify(personRepository).activateAccount(configLegalPersonEntity.id);
   }
 
@@ -68,23 +67,8 @@ class ActivateAccountConsumerTest {
 
     when(personRepository.getByCiu(ciu)).thenReturn(Uni.createFrom().item(configLegalPersonEntity));
 
-    consumer.consume(dataBytes);
+    consumer.consume(dataBytes).await().indefinitely();
 
     verify(personRepository, never()).activateAccount(configLegalPersonEntity.id);
   }
-
-  /*@Test
-  void testConsume_nullEntity() throws IOException {
-    String ciu = "12345";
-    AccountInfo accountInfo = new AccountInfo();
-    accountInfo.setCiu(ciu);
-    accountInfo.setNotifyData(new NotifyData());
-    byte[] dataBytes = new ObjectMapper().writeValueAsBytes(accountInfo);
-
-    when(personRepository.getByCiu(ciu)).thenReturn(Uni.createFrom().nullItem());
-
-    consumer.consume(dataBytes);
-
-    verify(personRepository, never()).persist(any());
-  }*/
 }

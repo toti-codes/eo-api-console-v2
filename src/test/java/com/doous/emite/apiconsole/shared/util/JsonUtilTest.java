@@ -1,6 +1,8 @@
 package com.doous.emite.apiconsole.shared.util;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,13 +28,9 @@ class JsonUtilTest {
 
   @Test
   void testToJson_throwsExceptionOnInvalidObject() {
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            JsonUtil.toJson(
-                new Object() {
-                  // Jackson can't serialize this anonymous object
-                }));
+    assertThrows(RuntimeException.class, () -> JsonUtil.toJson(new Object() {
+      // Jackson can't serialize this anonymous object
+    }));
   }
 
   @Test

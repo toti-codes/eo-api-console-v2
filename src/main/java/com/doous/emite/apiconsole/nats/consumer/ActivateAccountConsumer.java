@@ -8,7 +8,6 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
@@ -20,7 +19,8 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 @ApplicationScoped
 public class ActivateAccountConsumer {
 
-  @Inject PersonRepository personRepository;
+  @Inject
+  PersonRepository personRepository;
 
   /**
    * Procesa el mensaje recibido en el canal "data" para activar una cuenta.
@@ -36,34 +36,26 @@ public class ActivateAccountConsumer {
 
     System.out.println("Received data: " + data.getCiu());
 
-    this.personRepository
-        .getByCiu(data.getCiu())
-        .subscribe()
-        .with(
-            configLegalPersonEntity -> {
-              log.info("LegalPersonEntity: {}", configLegalPersonEntity);
+    return this.personRepository.getByCiu(data.getCiu()).onItem().ifNotNull()
+        .transform(configLegalPersonEntity -> {
+          log.info("LegalPersonEntity: {}", configLegalPersonEntity);
 
-              Optional.ofNullable(configLegalPersonEntity)
-                  .ifPresent(
-                      personEntity -> {
-                        if (personEntity.suspend) {
-                          personEntity.suspend = false;
+          if (configLegalPersonEntity.suspend) {
+            this.personRepository.activateAccount(configLegalPersonEntity.id).subscribe()
+                .with(persisted -> {
+                  log.info("Account with CIU {} has been activated.", data.getCiu());
 
-                          this.personRepository
-                              .activateAccount(personEntity.id)
-                              .subscribe()
-                              .with(
-                                  persisted -> {
-                                    log.info(
-                                        "Account with CIU {} has been activated.", data.getCiu());
+                  // Aquí puedes agregar cualquier lógica adicional que necesites
+                  // después de activar la cuenta
+                });
+          }
 
-                                    // Aquí puedes agregar cualquier lógica adicional que necesites
-                                    // después de activar la cuenta
-                                  });
-                        }
-                      });
-            });
+          return Uni.createFrom().voidItem();
+        }).onItem().ifNull().continueWith(() -> {
+          log.warn("No account found with CIU: {}", data.getCiu());
+          return Uni.createFrom().voidItem();
+        }).replaceWithVoid();
 
-    return Uni.createFrom().voidItem();
+
   }
 }
